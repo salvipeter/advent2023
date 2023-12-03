@@ -40,14 +40,19 @@ proc check {y x1 x2} {
     return false
 }
 
-# The ending index of the number starting at index `i`.
-# Returns `i-1` if there is no number starting there.
-proc endIndex {str i} {
-    set tail [string range $str $i end]
-    if {[string is digit -failindex len $tail]} {
-        return [expr {$i+[string length $tail]-1}]
+# The ending index of the number starting at index `i`;
+# `d` is the search direction (1: right, -1: left).
+# Returns -1 if there is no number starting there.
+proc endIndex {str i {d 1}} {
+    if {![string is digit [string index $str $i]]} {
+        return -1
     }
-    return [expr {$i+$len-1}]
+    set len [string length $str]
+    while {$i >= 0 && $i < $len &&
+           [string is digit [string index $str $i]]} {
+        incr i $d
+    }
+    expr {$i-$d}
 }
 
 set sum 0
@@ -55,7 +60,7 @@ for {set y 0} {$y < $height} {incr y} {
     set line [lindex $engine $y]
     for {set x 0} {$x < $width} {incr x} {
         set x2 [endIndex $line $x]
-        if {$x2 >= $x} {
+        if {$x2 >= 0} {
             if {[check $y $x $x2]} {
                 incr sum [string range $line $x $x2]
             }
@@ -75,13 +80,7 @@ proc getnum {x y} {
         return -1
     }
     set line [lindex $engine $y]
-    if {![string is digit [string index $line $x]]} {
-        return -1
-    }
-    while {$x >= 0 && [string is digit [string index $line $x]]} {
-        incr x -1
-    }
-    incr x
+    set x [endIndex $line $x -1]
     string range $line $x [endIndex $line $x]
 }
 
