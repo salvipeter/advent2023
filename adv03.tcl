@@ -40,16 +40,22 @@ proc check {y x1 x2} {
     return false
 }
 
+# The ending index of the number starting at index `i`.
+# Returns `i-1` if there is no number starting there.
+proc endIndex {str i} {
+    set tail [string range $str $i end]
+    if {[string is digit -failindex len $tail]} {
+        return [expr {$i+[string length $tail]-1}]
+    }
+    return [expr {$i+$len-1}]
+}
+
 set sum 0
 for {set y 0} {$y < $height} {incr y} {
     set line [lindex $engine $y]
     for {set x 0} {$x < $width} {incr x} {
-        set tail [string range $line $x end]]
-        if {[string is digit -failindex len $tail]} {
-            set len [string length $tail]
-        }
-        if {$len > 0} {
-            set x2 [expr {$x+$len-1}]
+        set x2 [endIndex $line $x]
+        if {$x2 >= $x} {
             if {[check $y $x $x2]} {
                 incr sum [string range $line $x $x2]
             }
@@ -76,11 +82,7 @@ proc getnum {x y} {
         incr x -1
     }
     incr x
-    set tail [string range $line $x end]
-    if {[string is digit -failindex f $tail]} {
-        return $tail
-    }
-    string range $tail 0 [expr {$f-1}]
+    string range $line $x [endIndex $line $x]
 }
 
 # Returns all numbers adjacent to the given coordinates.
