@@ -45,11 +45,13 @@ for {set y 0} {$y < $height} {incr y} {
     set line [lindex $engine $y]
     for {set x 0} {$x < $width} {incr x} {
         set tail [string range $line $x end]]
-        if {[string is digit -failindex f $tail] || $f > 0} {
-            set x2 [expr {$x+$f-1}]
-            set number [string range $line $x $x2]
+        if {[string is digit -failindex len $tail]} {
+            set len [string length $tail]
+        }
+        if {$len > 0} {
+            set x2 [expr {$x+$len-1}]
             if {[check $y $x $x2]} {
-                incr sum $number
+                incr sum [string range $line $x $x2]
             }
             set x $x2
         }
