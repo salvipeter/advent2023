@@ -1,8 +1,8 @@
 proc seedify seeds {
     return [lmap x $seeds {list $x 1}]; # comment for Part 2
     set result {}
-    for {set i 0} {$i < [llength $seeds]} {incr i 2} {
-        lappend result [lrange $seeds $i [expr {$i+1}]]
+    foreach {i j} $seeds {
+        lappend result [list $i $j]
     }
     return $result
 }
@@ -13,17 +13,20 @@ proc convert {rules old newname} {
     set rest {}
     foreach v $old {
         lassign $v x xlen
-        if {$x < $src && $x+$xlen >= $src} {
-            set xend [expr {min($x+$xlen,$src+$len)}]
-            lappend new [list $dest [expr {$xend-$src}]]
-            lappend rest [list $x [expr {$src-$x}]]
-        } elseif {$x >= $src && $x+$xlen <= $src+$len} {
-            lappend new [list [expr {$x-$src+$dest}] $xlen]
-        } elseif {$x < $src+$len && $x+$xlen > $src+$len} {
-            lappend new [list [expr {$x-$src+$dest}] [expr {$src+$len-$x}]]
-            lappend rest [list [expr {$src+$len}] [expr {$x-($src+$len)}]]
-        } else {
+        set x1 [expr {max($x,$src)}]
+        set x2 [expr {min($x+$xlen,$src+$len)}]
+        if {$x2 < $x1} {
             lappend rest $v
+            continue
+        }
+        if {$x1 < $src+$len && $x2 >= $src} {
+            lappend new [list [expr {$x1-$src+$dest}] [expr {$x2-$x1}]]
+        }
+        if {$x < $x1} {
+            lappend rest [list $x [expr {$x1-$x}]]
+        }
+        if {$x2 < $x+$xlen} {
+            lappend rest [list $x2 [expr {$x+$xlen-$x2}]]
         }
     }
     return $rest
@@ -51,5 +54,4 @@ while true {
         set x [convert $line $x y]
     }
 }
-puts [lindex [lsort -integer [lmap n $x {lindex $n 0}]] 0]
-
+puts [::tcl::mathfunc::min {*}[lmap n $x {lindex $n 0}]]
