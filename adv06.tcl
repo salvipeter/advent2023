@@ -9,6 +9,8 @@ proc waysToWin {t d} {
 set f [open adv06.txt]
 set times [lrange [gets $f] 1 end]
 set distances [lrange [gets $f] 1 end]
+close $f
+
 set result 1
 foreach t $times d $distances {
     set result [expr {$result*[waysToWin $t $d]}]
