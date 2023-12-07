@@ -1,5 +1,3 @@
-set part2 false
-
 # Converts `str` to a digit if starts with one
 # (either in digit or string form in Part 2).
 # Returns -1 otherwise.

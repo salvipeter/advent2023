@@ -1,5 +1,3 @@
-set part2 false
-
 proc value card {
     global part2
     switch $card {

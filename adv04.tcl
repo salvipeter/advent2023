@@ -1,5 +1,3 @@
-set part2 false
-
 set f [open adv04.txt]
 set allcards [split [read -nonewline $f] "\n"]
 close $f

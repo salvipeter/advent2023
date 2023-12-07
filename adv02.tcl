@@ -1,7 +1,5 @@
-set part1 true
-
 proc possible {line red green blue} {
-    global part1
+    global part2
     set id [scan [string range $line 5 end] "%d"]
     set start [expr {[string first ":" $line] + 2}]
     set line [string range $line $start end]
@@ -10,18 +8,18 @@ proc possible {line red green blue} {
         foreach cube $cubes {
             lassign $cube n color
             if {$n > [set $color]} {
-                if {$part1} {
+                if {!$part2} {
                     return 0
                 }
                 set $color $n
             }
         }
     }
-    expr {$part1 ? $id : $red * $green * $blue}
+    expr {$part2 ? $red * $green * $blue : $id}
 }
 
 set sum 0
-set base [if {$part1} {list 12 13 14} {list 0 0 0}]
+set base [if {$part2} {list 0 0 0} {list 12 13 14}]
 set f [open adv02.txt]
 while true {
     set line [gets $f]

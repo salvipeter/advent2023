@@ -1,5 +1,8 @@
 proc seedify seeds {
-    return [lmap x $seeds {list $x 1}]; # comment for Part 2
+    global part2
+    if {!$part2} {
+        return [lmap x $seeds {list $x 1}]
+    }
     set result {}
     foreach {i j} $seeds {
         lappend result [list $i $j]
