@@ -39,18 +39,14 @@ proc findExactlyN {var n} {
 proc type cards {
     if {[findExactlyN cards 5]} {return 7}
     if {[findExactlyN cards 4]} {return 6}
-    if {[findExactlyN cards 3] && [findExactlyN cards 2]} {
-        return 5
-    }
+    if {[findExactlyN cards 3] && [findExactlyN cards 2]} {return 5}
     if {[llength $cards] == 2} {return 4}
-    if {[findExactlyN cards 2] && [findExactlyN cards 2]} {
-        return 3
-    }
+    if {[findExactlyN cards 2] && [findExactlyN cards 2]} {return 3}
     if {[llength $cards] == 3} {return 2}
     return 1
 }
 
-proc score {hand} {
+proc score hand {
     set cards [split [lindex $hand 0] ""]
     set result [expr {100**5*[type $cards]}]
     foreach c $cards i {4 3 2 1 0} {
