@@ -10,11 +10,12 @@ proc value card {
     }
 }
 
-# Predicate to decide whether `cards` contain
+# Predicate to decide whether `$var` contains
 # exactly `n` cards of the same value.
-# If yes, and `remove` is true, return the rest.
-proc findExactlyN {cards n {remove false}} {
+# If yes, remove those cards from the variable.
+proc findExactlyN {var n} {
     global part2
+    upvar $var cards
     for {set v 2} {$v <= 14} {incr v} {
         set count 0
         set rest {}
@@ -26,9 +27,7 @@ proc findExactlyN {cards n {remove false}} {
             }
         }
         if {$count == $n} {
-            if {$remove} {
-                return $rest
-            }
+            set cards $rest
             return true
         }
     }
@@ -38,34 +37,32 @@ proc findExactlyN {cards n {remove false}} {
 # Return the rank of the hand, where
 # High card is 1, and Five of a kind is 7.
 proc type cards {
-    if {[findExactlyN $cards 5]} {return 7}
-    if {[findExactlyN $cards 4]} {return 6}
-    set rest [findExactlyN $cards 3 true]
-    if {$rest != false && [findExactlyN $rest 2]} {return 5}
-    if {$rest != false} {return 4}
-    set rest [findExactlyN $cards 2 true]
-    if {$rest == false} {return 1}
-    if {[findExactlyN $rest 2]} {return 3}
-    return 2
+    if {[findExactlyN cards 5]} {return 7}
+    if {[findExactlyN cards 4]} {return 6}
+    if {[findExactlyN cards 3] && [findExactlyN cards 2]} {
+        return 5
+    }
+    if {[llength $cards] == 2} {return 4}
+    if {[findExactlyN cards 2] && [findExactlyN cards 2]} {
+        return 3
+    }
+    if {[llength $cards] == 3} {return 2}
+    return 1
 }
 
-proc compare {hand1 hand2} {
-    set a [split [lindex $hand1 0] ""]
-    set b [split [lindex $hand2 0] ""]
-    if {[type $a] != [type $b]} {
-        return [expr {[type $a]-[type $b]}]
+proc score {hand} {
+    set cards [split [lindex $hand 0] ""]
+    set result [expr {100**5*[type $cards]}]
+    foreach c $cards i {4 3 2 1 0} {
+        incr result [expr {100**$i*[value $c]}]
     }
-    foreach x $a y $b {
-        if {[value $x] != [value $y]} {
-            return [expr {[value $x]-[value $y]}]
-        }
-    }
+    lset hand 0 $result
 }
 
 set f [open adv07.txt]
 set hands [split [read -nonewline $f] "\n"]
 close $f
-set sorted [lsort -command compare $hands]
+set sorted [lsort [lmap hand $hands {score $hand}]]
 set sum 0
 for {set i 0} {$i < [llength $sorted]} {incr i} {
     incr sum [expr {($i+1)*[lindex $sorted $i 1]}]

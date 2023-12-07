@@ -1,0 +1,7 @@
+#!/usr/bin/tclsh
+if {$argc == 0} {
+    puts "Usage: $argv0 <day> \[part\]"
+    exit
+}
+set part2 [expr {$argc >= 2 && [lindex $argv 1] != 1}]
+source [format "adv%02d.tcl" [lindex $argv 0]]
