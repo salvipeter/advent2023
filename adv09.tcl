@@ -1,21 +1,12 @@
 proc extrapolate vals {
     global part2
+    if {[lsearch -not 0 $vals] < 0} {return 0}
     set diffs {}
-    set allzero true
-    foreach a $vals b [lrange $vals 1 end] {
-        if {$a != 0} {set allzero false}
-        if {$b != {}} {
-            lappend diffs [expr {$b-$a}]
-        }
+    foreach a [lrange $vals 0 end-1] b [lrange $vals 1 end] {
+        lappend diffs [expr {$b-$a}]
     }
-    if {$allzero} {
-        return 0
-    }
-    if {$part2} {
-        expr {[lindex $vals 0] - [extrapolate $diffs]}
-    } else {
-        expr {[lindex $vals end] + [extrapolate $diffs]}
-    }
+    set dx [extrapolate $diffs]
+    expr {$part2 ? [lindex $vals 0]-$dx : [lindex $vals end]+$dx}
 }
 
 set sum 0
