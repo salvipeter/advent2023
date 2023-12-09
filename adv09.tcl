@@ -10,13 +10,7 @@ proc extrapolate vals {
 }
 
 set sum 0
-set f [open adv09.txt]
-while true {
-    set line [gets $f]
-    if {[eof $f]} {
-        close $f
-        break
-    }
+foreach line [readLines adv09.txt] {
     incr sum [extrapolate $line]
 }
 puts $sum

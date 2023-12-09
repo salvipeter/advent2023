@@ -10,6 +10,7 @@ The only tools used are `links` (to access the problems), `vim`
 (to write the code), `tcl` (to run the code), and `rlwrap` (for
 a bit of comfort in `tclsh`).
 
-To run the Tcl solutions, you (may) need to first define a
-global Boolean variable `part2`, which is `false` for Part 1 and
-`true` for Part 2. Or just use the `run` script.
+To run the Tcl solutions, you need to first source
+`readlines.tcl`, and define a global Boolean variable `part2`,
+which is `false` for Part 1 and `true` for Part 2. Or just use
+the `run` script.

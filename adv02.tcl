@@ -20,13 +20,7 @@ proc possible {line red green blue} {
 
 set sum 0
 set base [if {$part2} {list 0 0 0} {list 12 13 14}]
-set f [open adv02.txt]
-while true {
-    set line [gets $f]
-    if {[eof $f]} {
-        close $f
-        break
-    }
+foreach line [readLines adv02.txt] {
     incr sum [possible $line {*}$base]
 }
 puts $sum

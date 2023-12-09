@@ -1,6 +1,4 @@
-set f [open adv03.txt]
-set engine [split [read -nonewline $f] "\n"]
-close $f
+set engine [readLines adv03.txt]
 
 set width [string length [lindex $engine 0]]
 set height [llength $engine]

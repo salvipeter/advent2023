@@ -33,15 +33,8 @@ proc extractNumber {line} {
     expr {[lindex $digits 0] * 10 + [lindex $digits end]}
 }
 
-set f [open adv01.txt]
 set sum 0
-while true {
-    set line [gets $f]
-    if {[eof $f]} {
-        close $f
-        break
-    }
+foreach line [readLines adv01.txt] {
     incr sum [extractNumber $line]
 }
 puts $sum
-

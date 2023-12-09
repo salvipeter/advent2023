@@ -55,9 +55,7 @@ proc score hand {
     lset hand 0 $result
 }
 
-set f [open adv07.txt]
-set hands [split [read -nonewline $f] "\n"]
-close $f
+set hands [readLines adv07.txt]
 set sorted [lsort [lmap hand $hands {score $hand}]]
 set sum 0
 for {set i 0} {$i < [llength $sorted]} {incr i} {

@@ -35,26 +35,18 @@ proc convert {rules old newname} {
     return $rest
 }
 
-set f [open adv05.txt]
-set line [gets $f]
-set x [seedify [lrange $line 1 end]]
-gets $f; # empty line
-gets $f; # header
-
+set lines [readLines adv05.txt]
+set x [seedify [lrange [lindex $lines 0] 1 end]]
 set y {}
-while true {
-    set line [gets $f]
-    if {[eof $f]} {
-        close $f
-        set x [concat $x $y]
-        break
-    }
+for {set i 3} {$i < [llength $lines]} {incr i} {
+    set line [lindex $lines $i]
     if {$line == ""} {
         set x [concat $x $y]
         set y {}
-        gets $f; # header
+        incr i
     } else {
         set x [convert $line $x y]
     }
 }
+set x [concat $x $y]
 puts [::tcl::mathfunc::min {*}[lmap n $x {lindex $n 0}]]

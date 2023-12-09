@@ -1,6 +1,4 @@
-set f [open adv04.txt]
-set allcards [split [read -nonewline $f] "\n"]
-close $f
+set allcards [readLines adv04.txt]
 
 set cache [dict create]
 

@@ -14,16 +14,10 @@ proc gcd {a b} {
 
 proc lcm {a b} {expr {$a*$b/[gcd $a $b]}}
 
-set f [open adv08.txt]
-set moves [gets $f]
-gets $f; # empty line
+set lines [readLines adv08.txt]
+set moves [lindex $lines 0]
 set map [dict create]
-while true {
-    set line [gets $f]
-    if {[eof $f]} {
-        close $f
-        break
-    }
+foreach line [lrange $lines 2 end] {
     set pair [list [string range $line 7 9] [string range $line 12 14]]
     dict set map [string range $line 0 2] $pair
 }
