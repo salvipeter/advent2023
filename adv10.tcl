@@ -69,8 +69,8 @@ foreach line $walls {
     set inside false
     foreach c [split $line ""] {
         switch $c {
-            F {set onstate $inside; set pair 7}
-            L {set onstate $inside; set pair J}
+            F {set pair 7}
+            L {set pair J}
             - {}
             7 {if {$pair != "7"} {set inside [expr {!$inside}]}}
             J {if {$pair != "J"} {set inside [expr {!$inside}]}}
