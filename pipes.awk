@@ -2,9 +2,8 @@ BEGIN {
     FS = ""
     size = 140
     cell = 4
-    y = 0
-    print "<svg xmlns='http://www.w3.org/2000/svg' \
-                width='" cell * size "' height='" cell * size "'>"
+    print "<svg xmlns='http://www.w3.org/2000/svg'" \
+              " width='" cell * size "' height='" cell * size "'>"
 }
 {
     x = 0
