@@ -3,10 +3,7 @@ set debugOutput false
 # Returns the character at the given position,
 # or the empty string for invalid positions.
 proc pipe {x y} {
-    global map width height
-    if {$x < 0 || $y < 0 || $x >= $width || $y >= $height} {
-        return ""
-    }
+    global map
     string index [lindex $map $y] $x
 }
 
@@ -19,8 +16,7 @@ proc wall {x y c} {
 # Steps away from `pos`, but not to `prev`.
 # If `check` is false, it does not test the starting position shape.
 proc step {pos prev {check true}} {
-   set dirs {{-1 0 "FL-" "J7-"} {0 -1 "7F|" "LJ|"}
-             { 1 0 "J7-" "FL-"} {0  1 "LJ|" "7F|"}}
+   set dirs {{-1 0 FL- J7-} {0 -1 7F| LJ|} {1 0 J7- FL-} {0 1 LJ| 7F|}}
    lassign $pos x y
    set c [pipe $x $y]
    foreach dir $dirs {
@@ -29,8 +25,7 @@ proc step {pos prev {check true}} {
            continue
        }
        set pos2 [list [expr {$x+$dx}] [expr {$y+$dy}]]
-       set c2 [pipe {*}$pos2]
-       if {$c2 == ""} {
+       if {[set c2 [pipe {*}$pos2]] == ""} {
            continue
        }
        if {$pos2 != $prev && [string first $c2 $to] >= 0} {
@@ -41,16 +36,12 @@ proc step {pos prev {check true}} {
 }
 
 set map [readLines adv10.txt]
-set height [llength $map]
-set width [string length [lindex $map 0]]
-set walls [lrepeat $height [string repeat . $width]]
-for {set y 0} {$y < $height} {incr y} {
-    for {set x 0} {$x < $width} {incr x} {
-        if {[pipe $x $y] == "S"} {
-            set start [list $x $y]
-        }
-    }
+set walls [lmap line $map {regsub -all . $line .}]
+set y 0
+while {[set x [string first S [lindex $map $y]]] < 0} {
+    incr y
 }
+set start [list $x $y]
 
 wall {*}$start |; # manual inspection
 set prev1 $start
@@ -71,14 +62,13 @@ foreach line $walls {
         switch $c {
             F {set pair 7}
             L {set pair J}
-            - {}
-            7 {if {$pair != "7"} {set inside [expr {!$inside}]}}
-            J {if {$pair != "J"} {set inside [expr {!$inside}]}}
+            7 {if {$pair ne "7"} {set inside [expr {!$inside}]}}
+            J {if {$pair ne "J"} {set inside [expr {!$inside}]}}
             | {set inside [expr {!$inside}]}
             . {if {$inside} {incr count}}
         }
         if {$debugOutput} {
-            puts -nonewline [expr {$inside && $c == "." ? "x" : $c}]
+            puts -nonewline [expr {$inside && $c eq "." ? "x" : $c}]
         }
     }
     if {$debugOutput} {
