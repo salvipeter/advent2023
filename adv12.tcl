@@ -1,41 +1,38 @@
 source readlines.tcl
+set part2 false
 
-# Note: `acc == 0 || acc <= [lindex $groups 0]` always holds
-proc tryAndCount {springs groups acc} {
+# Try to locate the `n` > 0 good springs
+# Assumption: first `len` characters are OK
+proc tryAndCount {springs groups n len} {
+    if {[llength $groups] > $n + 1} {
+        return 0
+    }
     if {$groups == {}} {
-        return [expr {[string first # $springs] < 0 ? 1 : 0}]
-    } 
-    if {$springs == ""} {
-        return [expr {$groups == $acc ? 1 : 0}]
+        return [expr {[string first # $springs $len] < 0 ? 1 : 0}]
     }
-    set s [string index $springs 0]
-    set srest [string range $springs 1 end]
-    set g [lindex $groups 0]
-    set grest [lrange $groups 1 end]
-    if {$s == "."} {
-        if {$acc == 0} {
-            tailcall tryAndCount $srest $groups 0
-        } elseif {$g == $acc} {
-            tailcall tryAndCount $srest $grest 0
-        } else {
-            return 0
+    set rest [lassign $groups g]
+    set sum 0
+    for {set k 0} {$k <= $n} {incr k} {
+        set d1 [expr {$len+$k-1}]
+        set s1 [string range $springs $len $d1]
+        if {[string first # $s1] >= 0} {
+            break
         }
-    } elseif {$s == "#"} {
-        if {$acc < $g} {
-            tailcall tryAndCount $srest $groups [expr {$acc+1}]
-        } else {
-            return 0
+        set d2 [expr {$d1+$g}]
+        incr d1
+        set s2 [string range $springs $d1 $d2]
+        if {[string first . $s2] >= 0} {
+            continue
         }
-    } else {
-        if {$acc == $g} {
-            tailcall tryAndCount $srest $grest 0
+        incr d2
+        if {$k == $n} {
+            incr sum [expr {$rest == {} ? 1 : 0}]
+        } elseif {[string index $springs $d2] != "#"} {
+            incr d2
+            incr sum [tryAndCount $springs $rest [expr {$n-$k-1}] $d2]
         }
-        set sum [tryAndCount $srest $groups [expr {$acc+1}]]
-        if {$acc == 0} {
-            incr sum [tryAndCount $srest $groups 0]
-        }
-        return $sum
     }
+    return $sum
 }
 
 proc arrangements line {
@@ -46,7 +43,12 @@ proc arrangements line {
         set springs [join [lrepeat 5 $springs] ?]
         set groups [lrepeat 5 {*}$groups]
     }
-    tryAndCount $springs $groups 0
+    set len [string length $springs]
+    set sum 0
+    foreach g $groups {
+        incr sum $g
+    }
+    tryAndCount $springs $groups [expr {$len-$sum}] 0
 }
 
 set sum 0
