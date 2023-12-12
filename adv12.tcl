@@ -1,7 +1,7 @@
 # Is `c` contained in `str` in the `[from, before)` interval?
 proc inRange {c str from before} {
-    set i [string first $c $str $from]
-    expr {$i >= 0 && $i < $before}
+    set s [string range $str $from [expr {$before-1}]]
+    expr {[string first $c $s] >= 0}
 }
 
 # Try to locate the `n` > 0 good springs
@@ -14,7 +14,7 @@ proc tryAndCount {springs groups n len} {
     }
     set result 0
     if {$groups == {}} {
-        set result [expr {[string first # $springs $len] < 0 ? 1 : 0}]
+        set result [expr {[string first # $springs $len] < 0}]
     } else {
         set rest [lassign $groups g]
         for {set k 0} {$k <= $n} {incr k} {
@@ -27,7 +27,7 @@ proc tryAndCount {springs groups n len} {
                 continue
             }
             if {$k == $n} {
-                incr result [expr {$rest == {} ? 1 : 0}]
+                incr result [expr {$rest == {}}]
             } elseif {[string index $springs $d2] != "#"} {
                 incr d2
                 incr result [tryAndCount $springs $rest [expr {$n-$k-1}] $d2]
