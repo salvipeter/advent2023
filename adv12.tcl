@@ -8,7 +8,7 @@ proc inRange {c str from before} {
 # Assumption: first `len` characters are OK
 proc tryAndCount {springs groups n len} {
     global cache
-    set index [list $len $groups]
+    set index [list $n $len]
     if {[dict exists $cache $index]} {
         return [dict get $cache $index]
     }
