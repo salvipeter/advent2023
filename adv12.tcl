@@ -1,42 +1,45 @@
-source readlines.tcl
-set part2 false
-
 # Try to locate the `n` > 0 good springs
 # Assumption: first `len` characters are OK
 proc tryAndCount {springs groups n len} {
+    global cache
+    set index [list $len $groups]
+    if {[dict exists $cache $index]} {
+        return [dict get $cache $index]
+    }
+    set result 0
     if {[llength $groups] > $n + 1} {
-        return 0
-    }
-    if {$groups == {}} {
-        return [expr {[string first # $springs $len] < 0 ? 1 : 0}]
-    }
-    set rest [lassign $groups g]
-    set sum 0
-    for {set k 0} {$k <= $n} {incr k} {
-        set d1 [expr {$len+$k-1}]
-        set s1 [string range $springs $len $d1]
-        if {[string first # $s1] >= 0} {
-            break
-        }
-        set d2 [expr {$d1+$g}]
-        incr d1
-        set s2 [string range $springs $d1 $d2]
-        if {[string first . $s2] >= 0} {
-            continue
-        }
-        incr d2
-        if {$k == $n} {
-            incr sum [expr {$rest == {} ? 1 : 0}]
-        } elseif {[string index $springs $d2] != "#"} {
+    } elseif {$groups == {}} {
+        set result [expr {[string first # $springs $len] < 0 ? 1 : 0}]
+    } else {
+        set rest [lassign $groups g]
+        for {set k 0} {$k <= $n} {incr k} {
+            set d1 [expr {$len+$k-1}]
+            set s1 [string range $springs $len $d1]
+            if {[string first # $s1] >= 0} {
+                break
+            }
+            set d2 [expr {$d1+$g}]
+            incr d1
+            set s2 [string range $springs $d1 $d2]
+            if {[string first . $s2] >= 0} {
+                continue
+            }
             incr d2
-            incr sum [tryAndCount $springs $rest [expr {$n-$k-1}] $d2]
+            if {$k == $n} {
+                incr result [expr {$rest == {} ? 1 : 0}]
+            } elseif {[string index $springs $d2] != "#"} {
+                incr d2
+                incr result [tryAndCount $springs $rest [expr {$n-$k-1}] $d2]
+            }
         }
     }
-    return $sum
+    dict set cache $index $result
+    return $result
 }
 
 proc arrangements line {
-    global part2
+    global cache part2
+    set cache [dict create]
     set springs [lindex $line 0]
     set groups [split [lindex $line 1] ,]
     if {$part2} {
