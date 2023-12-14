@@ -28,8 +28,8 @@ proc transpose m {
 
 proc rotate {m dir} {
     switch $dir {
-        left  {transpose [lreverse $m]}
-        right {lreverse [transpose $m]}
+        left  {lreverse [transpose $m]}
+        right {transpose [lreverse $m]}
     }
 }
 
@@ -53,21 +53,21 @@ proc tiltWest m {
 }
 
 proc cycle m {
+    set m [rotate $m left]
+    set m [tiltWest $m]
     set m [rotate $m right]
     set m [tiltWest $m]
-    set m [rotate $m left]
+    set m [rotate $m right]
     set m [tiltWest $m]
-    set m [rotate $m left]
+    set m [rotate $m right]
     set m [tiltWest $m]
-    set m [rotate $m left]
-    set m [tiltWest $m]
-    set m [rotate $m left]
-    set m [rotate $m left]
+    set m [rotate $m right]
+    set m [rotate $m right]
 }
 
 # Part 1
 set map [readLines adv14.txt]
-puts [northLoad [rotate [tiltWest [rotate $map right]] left]]
+puts [northLoad [rotate [tiltWest [rotate $map left]] right]]
 
 # Part 2
 set m $map
