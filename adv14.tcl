@@ -83,9 +83,5 @@ for {set i 0} {!$cyclen} {incr i} {
         }
     }
 }
-
 set n [expr {$offset + (1000000000 - $offset) % $cyclen}]
-for {set i 0} {$i < $n} {incr i} {
-    set map [cycle $map]
-}
-puts [northLoad $map]
+puts [northLoad $tilted($n)]
