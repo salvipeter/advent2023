@@ -16,16 +16,14 @@ proc get pos {
 
 proc simulate {pos dir acc} {
     while true {
-        set c [get $pos]
-        if {$c eq ""} {
+        if {[get $pos] eq ""} {
             break
         }
         if {[dict exists $acc $pos]} {
-            set dirs [dict get $acc $pos]
-            if {[lsearch $dirs $dir] >= 0} {
+            if {[lsearch [dict get $acc $pos] $dir] >= 0} {
                 break
             } else {
-                dict set acc $pos [concat $dirs $dir]
+                dict lappend acc $pos $dir
             }
         } else {
             dict set acc $pos $dir
@@ -34,11 +32,11 @@ proc simulate {pos dir acc} {
             /  {set dir [lindex {1 0 3 2} $dir]}
             \\ {set dir [lindex {3 2 1 0} $dir]}
             -  {if {$dir % 2 == 0} {
-                    set acc [simulate [step $pos 1] 1 $acc]
+                    set acc [simulate $pos 1 $acc]
                     set dir 3
                 }}
             |  {if {$dir % 2 == 1} {
-                    set acc [simulate [step $pos 0] 0 $acc]
+                    set acc [simulate $pos 0 $acc]
                     set dir 2
                 }}
         }
