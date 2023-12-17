@@ -2,5 +2,8 @@ Sub-standard solutions:
 
 Day | Old laptop | New laptop |
 ----+------------+------------+
- 16 |     7m     |     1m     |
- 17 |  6m + 35m  |  30s + 3m  |
+16  |     7m     |     1m     |
+17* |  6m + 35m  |  30s + 3m  |
+
+* But the (almost word-by-word) C++ translation
+  is fast enough even on the old laptop (3s + 5s).
