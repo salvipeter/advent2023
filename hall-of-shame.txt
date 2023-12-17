@@ -1,0 +1,6 @@
+Sub-standard solutions:
+
+Day | Old laptop | New laptop |
+----+------------+------------+
+ 16 |     7m     |     1m     |
+ 17 |  6m + 35m  |  30s + 3m  |
