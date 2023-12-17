@@ -26,9 +26,8 @@ structure PairOrd: ORD_KEY =
     type ord_key = int * int
     fun compare ((a, b), (c, d)) =
         case Int.compare (a, c) of
-            LESS    => LESS
-          | GREATER => GREATER
-          | EQUAL   => Int.compare (b, d)
+            EQUAL => Int.compare (b, d)
+          | order => order
   end
 structure PairMap: ORD_MAP = RedBlackMapFn(PairOrd)
 
