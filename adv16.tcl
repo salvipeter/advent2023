@@ -49,7 +49,6 @@ set map [lmap line [readLines adv16.txt] {split $line ""}]
 set size [expr {[llength $map]-1}]
 set max 0
 for {set i 0} {$i <= $size} {incr i} {
-    puts "$i..."
     set a [dict size [simulate "$i $size" 0 [dict create]]]
     set b [dict size [simulate "0 $i" 1 [dict create]]]
     if {$i == 0} {puts $b}; # Part 1
