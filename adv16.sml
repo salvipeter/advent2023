@@ -36,23 +36,22 @@ fun simulate pos dir acc =
         NONE   => acc
       | SOME c =>
         let val ds = PairMap.lookup (acc, pos) handle NotFound => []
-            fun f ds =
-                let val acc' = PairMap.insert (acc, pos, ds)
-                in let val (dir', acc'') =
-                           case c of
-                               #"/"  => (List.nth ([1,0,3,2], dir), acc')
-                             | #"\\" => (List.nth ([3,2,1,0], dir), acc')
-                             | #"-"  => if dir mod 2 = 1 then (dir, acc')
-                                        else (3, simulate pos 1 acc')
-                             | #"|"  => if dir mod 2 = 0 then (dir, acc')
-                                        else (2, simulate pos 0 acc')
-                             | #"."  => (dir, acc')
-                             | _     => raise Domain
-                   in simulate (step pos dir') dir' acc'' end
-                end
         in case List.find (fn d => d = dir) ds of
-               NONE   => f (dir :: ds)
-             | SOME _ => acc
+               SOME _ => acc
+             | NONE   =>
+               let val acc = PairMap.insert (acc, pos, dir :: ds)
+               in let val (dir, acc) =
+                          case c of
+                              #"/"  => (List.nth ([1,0,3,2], dir), acc)
+                            | #"\\" => (List.nth ([3,2,1,0], dir), acc)
+                            | #"-"  => if dir mod 2 = 1 then (dir, acc)
+                                       else (3, simulate pos 1 acc)
+                            | #"|"  => if dir mod 2 = 0 then (dir, acc)
+                                       else (2, simulate pos 0 acc)
+                            | #"."  => (dir, acc)
+                            | _     => raise Domain
+                  in simulate (step pos dir) dir acc end
+               end
         end
 
 fun energy pos dir = PairMap.numItems (simulate pos dir PairMap.empty)
