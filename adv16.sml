@@ -58,11 +58,10 @@ fun energy pos dir = PairMap.numItems (simulate pos dir PairMap.empty)
 
 val _ =
     let val size = Vector.length heatmap
-        fun f i =
-            [energy (i,        size - 1) 0,
-             energy (0,        i)        1,
-             energy (i,        0)        2,
-             energy (size - 1, 0)        3]
+        fun f i = [energy (i, size - 1) 0,
+                   energy (0,        i) 1,
+                   energy (i,        0) 2,
+                   energy (size - 1, 0) 3]
     in let val xs = List.tabulate (size, f)
        in print ((Int.toString o List.nth) (hd xs, 1) ^ " " ^
                  (Int.toString o foldl Int.max 0 o List.concat) xs ^ "\n")
