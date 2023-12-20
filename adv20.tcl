@@ -32,7 +32,6 @@ proc initialize {} {
     return $states
 }
 
-# To help manual inspection
 proc whoSendsTo name {
     global modules
     set result {}
@@ -106,8 +105,11 @@ foreach line [readLines adv20.txt] {
 }
 set states [initialize]
 
+# By manual inspection, the data seems to have a specific structure:
+# `rx` gets its signal from an inverter, which is connected to
+# several conjunctions that give a high signal periodically.
+set tofind [whoSendsTo [lindex [whoSendsTo rx] 0]]
 set l 0; set h 0
-set tofind {ks pm dl vk}; # manual inspection
 set part2 1
 for {set i 1} {$tofind != {}} {incr i} {
     lassign [pushButton $tofind] dl dh found
