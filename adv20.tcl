@@ -1,15 +1,25 @@
+proc isFlipFlop module {
+    global modules
+    lindex [dict get $modules $module] 0
+}
+
+proc ends module {
+    global modules
+    lindex [dict get $modules $module] 1
+}
+
 # Sets all internal states to 0 (low signal)
 proc initialize {} {
     global modules
     set states [dict create]
     foreach module [dict keys $modules] {
         if {$module eq "broadcaster"} {continue}
-        if {[lindex [dict get $modules $module] 0]} {
+        if {[isFlipFlop $module]} {
             dict set states $module 0
         }
-        foreach end [lindex [dict get $modules $module] 1] {
+        foreach end [ends $module] {
             if {![dict exists $modules $end]} {continue}
-            if {![lindex [dict get $modules $end] 0]} {
+            if {![isFlipFlop $end]} {
                 if {![dict exists $states $end]} {
                     dict set states $end [dict create]
                 }
@@ -26,8 +36,8 @@ proc initialize {} {
 proc whoSendsTo name {
     global modules
     set result {}
-    dict for {from te} $modules {
-        if {[lsearch [lindex $te 1] $name] >= 0} {
+    foreach from [dict keys $modules] {
+        if {[lsearch [ends $from] $name] >= 0} {
             lappend result $from
         }
     }
@@ -56,14 +66,13 @@ proc pushButton tofind {
         }
         if {$signal} {incr h} {incr l}
         if {![dict exists $modules $name]} {continue}
-        lassign [dict get $modules $name] flipflop ends
-        if {$flipflop} {
+        if {[isFlipFlop $name]} {
             if {$signal} {
                 continue
             }
             dict update states $name state {
                 set state [expr {!$state}]
-                foreach end $ends {
+                foreach end [ends $name] {
                     lappend queue [list $name $end $state]
                 }
             }
@@ -74,7 +83,7 @@ proc pushButton tofind {
                 if {[lsearch [dict values $state] 0] >= 0} {
                     set pulse 1
                 }
-                foreach end $ends {
+                foreach end [ends $name] {
                     lappend queue [list $name $end $pulse]
                 }
             }
