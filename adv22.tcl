@@ -71,7 +71,7 @@ for {set i 0} {$i < [llength $blocks]} {incr i} {
     set b [lindex $blocks $i]
     set maxz 0
     set supports {}
-    for {set j 0} {$j < [llength $settled]} {incr j} {
+    for {set j 0} {$j < $i} {incr j} {
         set s [lindex $settled $j]
         set z [lindex $s 1 2]
         if {$z < $maxz} {
