@@ -1,5 +1,3 @@
-source readlines.tcl
-
 # Note that:
 # - any square reached in `n` steps will also be reached
 #   in `m > n` steps if `m` and `n` have the same parity
@@ -95,19 +93,8 @@ puts [reachable $k $start 64]
 set n 26501365 
 set m [expr {$k-1}]
 set r [expr {$n/$k}]
-set evens 0
-set odds 0
-for {set y 0} {$y < $k} {incr y} {
-    for {set x 0} {$x < $k} {incr x} {
-        if {[get $x $y] eq "."} {
-            if {($x+$y)%2 == 0} {
-                incr evens
-            } else {
-                incr odds
-            }
-        }
-    }
-}
+set evens [reachable $k {0 0} 1000]
+set odds [reachable $k {0 0} 1001]
 set sum 0
 incr sum [expr {($r-1)**2*$odds}]
 incr sum [expr {$r**2*$evens}]
