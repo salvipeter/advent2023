@@ -56,22 +56,21 @@ int zless(const void *a, const void *b) {
 }
 
 bool above(const Block *a, const Block *b) {
-  if (a->a[0] == a->b[0]) {
-    if (b->a[0] == b->b[0]) {
-      if (a->a[0] != b->a[0])
+  const int *aa = a->a, *ab = a->b, *ba = b->a, *bb = b->b;
+  if (aa[0] == ab[0]) {
+    if (ba[0] == bb[0]) {
+      if (aa[0] != ba[0])
         return false;
-      return a->b[1] >= b->a[1] && b->b[1] >= a->a[1];
+      return ab[1] >= ba[1] && bb[1] >= aa[1];
     }
-    return b->a[0] <= a->a[0] && a->a[0] <= b->b[0] &&
-      a->a[1] <= b->a[1] && b->a[1] <= a->b[1];
+    return ba[0] <= aa[0] && aa[0] <= bb[0] && aa[1] <= ba[1] && ba[1] <= ab[1];
   }
-  if (b->a[1] == b->b[1]) {
-    if (a->a[1] != b->a[1])
+  if (ba[1] == bb[1]) {
+    if (aa[1] != ba[1])
       return false;
-    return a->b[0] >= b->a[0] && b->b[0] >= a->a[0];
+    return ab[0] >= ba[0] && bb[0] >= aa[0];
   }
-  return b->a[1] <= a->a[1] && a->a[1] <= b->b[1] &&
-    a->a[0] <= b->a[0] && b->a[0] <= a->b[0];
+  return ba[1] <= aa[1] && aa[1] <= bb[1] && aa[0] <= ba[0] && ba[0] <= ab[0];
 }
 
 void fall(Block *b, int z) {
@@ -124,17 +123,12 @@ int main(void) {
   f = fopen("adv22.txt", "r");
   for (int i = 0; i < n; ++i) {
     fgets(line, 100, f);
-    blocks[i].a[0] = atoi(line);
-    char *s = strchr(line, ',') + 1;
-    blocks[i].a[1] = atoi(s);
-    s = strchr(s, ',') + 1;
-    blocks[i].a[2] = atoi(s);
-    s = strchr(s, '~') + 1;
-    blocks[i].b[0] = atoi(s);
-    s = strchr(s, ',') + 1;
-    blocks[i].b[1] = atoi(s);
-    s = strchr(s, ',') + 1;
-    blocks[i].b[2] = atoi(s);
+    blocks[i].a[0] = atoi(strtok(line, ",~"));
+    blocks[i].a[1] = atoi(strtok(NULL, ",~"));
+    blocks[i].a[2] = atoi(strtok(NULL, ",~"));
+    blocks[i].b[0] = atoi(strtok(NULL, ",~"));
+    blocks[i].b[1] = atoi(strtok(NULL, ",~"));
+    blocks[i].b[2] = atoi(strtok(NULL, ",~"));
   }
   fclose(f);
   qsort(blocks, n, sizeof(Block), zless);
