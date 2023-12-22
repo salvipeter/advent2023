@@ -4,4 +4,4 @@ Day | Old laptop | New laptop | Translated to | New runtime on old laptop |
 ----+------------+------------+---------------+---------------------------+
  16 |     7m     |     1m     |  Standard ML  |             4s            |
  17 |  6m + 35m  |  30s + 3m  |      C++      |          3s + 5s          |
- 22 |     1m     |     5s     |       C       |                           |
+ 22 |     1m     |     5s     |       C       |            <1s            |
