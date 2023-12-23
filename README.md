@@ -14,3 +14,7 @@ To run the Tcl solutions, you need to first source
 `readlines.tcl`, and define a global Boolean variable `part2`,
 which is `false` for Part 1 and `true` for Part 2. Or just use
 the `run` script.
+
+Some solutions were quite slow and were translated into a
+statically typed compiled language (SML or C/C++), see the
+[Hall of Shame](hall-of-shame.txt).
