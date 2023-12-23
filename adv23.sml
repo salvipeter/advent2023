@@ -45,7 +45,7 @@ fun crossroads from to prev len =
          | _ => Cross (from, len + 1, neighbors)
     end
 
-val cache = Array2.array (size, size, NONE)
+val cache = Array2.array (size, size, NONE: cross option)
 fun crossroads' from to prev =
     case Array2.sub (cache, #1 from, #2 from) of
         SOME result => result
