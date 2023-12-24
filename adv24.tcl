@@ -65,6 +65,9 @@ proc inside {point halfspace} {
 # Find the first sub-octree that is on the "future" side of each hailstone,
 # and hope that there will only be one such position.
 proc findPos {hail a b} {
+    if {$a == $b} {
+        return {}
+    }
     if {$hail == {}} {
         return [list $a $b]
     }
@@ -102,9 +105,6 @@ proc findPos {hail a b} {
         return {}
     }
     set c [div [add $a $b] 2]
-    if {$c == $a} {
-        return {}
-    }
     lassign $c cx cy cz
     set divisions [list \
         [list [list $ax $ay $az] [list $cx $cy $cz]] \
@@ -116,6 +116,9 @@ proc findPos {hail a b} {
         [list [list $ax $cy $cz] [list $cx $by $bz]] \
         [list [list $cx $cy $cz] [list $bx $by $bz]]]
     foreach sub $divisions {
+        if {$sub == [list $a $b]} {
+            continue
+        }
         set result [findPos $hail {*}$sub]
         if {$result != {}} {
             return $result
