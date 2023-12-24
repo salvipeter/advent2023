@@ -1,9 +1,6 @@
 source readlines.tcl
 set part2 true
 
-# Idea: take the intersection of all halfspaces,
-# and hopefully there will be only one integer position inside
-
 proc add {u v} {
     lassign $u ux uy uz
     lassign $v vx vy vz
@@ -38,7 +35,6 @@ proc insideXY {p min max} {
 }
 
 proc intersect {a b min max} {
-    global part2
     lassign $a ap ad
     lassign $b bp bd
     set a [dot $ad $ad]
@@ -50,19 +46,82 @@ proc intersect {a b min max} {
     set at [expr {$b*$e-$c*$d}]
     set bt [expr {$a*$e-$b*$d}]
     # Intersection: ap + ad * (at / denom) = bp + bd * (bt / denom)
-    if {$denom == 0 || (!$part2 && $at < 0) || $bt < 0} {
+    if {$denom == 0 || $at < 0 || $bt < 0} {
         # Parallel (assuming different lines), or not in the future
         return false
     }
     set aint [add [mul $ap $denom] [mul $ad $at]]
     set bint [add [mul $bp $denom] [mul $bd $bt]]
-    if {$part2} {
-        # In 3D there may not be an intersection at all
-        return [expr {$aint == $bint}]
-    }
     set min [expr {$min*$denom}]
     set max [expr {$max*$denom}]
     expr {[insideXY $aint $min $max] && [insideXY $bint $min $max]}
+}
+
+proc inside {point halfspace} {
+    lassign $halfspace p d
+    expr {[dot [sub $point $p] $d] > 0}
+}
+
+# Find the first sub-octree that is on the "future" side of each hailstone,
+# and hope that there will only be one such position.
+proc findPos {hail a b} {
+    if {$hail == {}} {
+        return [list $a $b]
+    }
+    set rest [lassign $hail h]
+    lassign $a ax ay az
+    lassign $b bx by bz
+    set vertices [list \
+        [list $ax $ay $az] \
+        [list $ax $ay $bz] \
+        [list $ax $by $az] \
+        [list $ax $by $bz] \
+        [list $bx $ay $az] \
+        [list $bx $ay $bz] \
+        [list $bx $by $az] \
+        [list $bx $by $bz]]
+    set any false
+    set all true
+    foreach v $vertices {
+        if {[inside $v $h]} {
+            set any true
+            if {!$all} {
+                break
+            }
+        } else {
+            set all false
+            if {$any} {
+                break
+            }
+        }
+    }
+    if {$all} {
+        tailcall findPos $rest $a $b
+    }
+    if {!$any} {
+        return {}
+    }
+    set c [div [add $a $b] 2]
+    if {$c == $a} {
+        return {}
+    }
+    lassign $c cx cy cz
+    set divisions [list \
+        [list [list $ax $ay $az] [list $cx $cy $cz]] \
+        [list [list $cx $ay $az] [list $bx $cy $cz]] \
+        [list [list $ax $cy $az] [list $cx $by $cz]] \
+        [list [list $cx $cy $az] [list $bx $by $cz]] \
+        [list [list $ax $ay $cz] [list $cx $cy $bz]] \
+        [list [list $cx $ay $cz] [list $bx $cy $bz]] \
+        [list [list $ax $cy $cz] [list $cx $by $bz]] \
+        [list [list $cx $cy $cz] [list $bx $by $bz]]]
+    foreach sub $divisions {
+        set result [findPos $hail {*}$sub]
+        if {$result != {}} {
+            return $result
+        }
+    }
+    return {}
 }
 
 set hail {}
@@ -75,40 +134,15 @@ foreach line [readLines adv24.txt] {
     }
 }
 set n [llength $hail]
+set min 200000000000000
+set max 400000000000000
 
 if {$part2} {
-    # Assume that the first two hailstones meet the stone at integer times
-    lassign [lindex $hail 0] p1 d1
-    lassign [lindex $hail 1] p2 d2
-    set found false
-    for {set k 2} {!$found} {incr k} {
-        puts "$k..."
-        for {set i 1} {$i < $k} {incr i} {
-            set j [expr {$k-$i}]
-            set q1 [add $p1 [mul $d1 $i]]
-            set q2 [add $p2 [mul $d2 $j]]
-            set d [sub $q1 $q2]
-            set found true
-            for {set h 2} {$h < $n} {incr h} {
-                if {![intersect [list $q1 $d] [lindex $hail $h] {} {}]} {
-                    set found false
-                    if {$h>2} {puts "($h)"}
-                    break
-                }
-            }
-            if {$found} {
-                puts "$i $j"
-                set q [sub $q1 [div [mul $d $i] [expr {abs($j-$i)}]]]
-                puts "Found: $q"
-                lassign $q x y z
-                puts [expr {$x+$y+$z}]
-                break
-            }
-        }
-    }
+    set min 1000000000000
+    set max 1000000000000000
+    lassign [findPos $hail [list $min $min $min] [list $max $max $max]] a b
+    puts "$a --- $b"
 } else {
-    set min 200000000000000
-    set max 400000000000000
     set count 0
     for {set i 0} {$i < $n} {incr i} {
         set hail1 [lindex $hail $i]
