@@ -1,5 +1,19 @@
+# More ideas:
+#
+# - the p + d t line intersects line i if
+#   - p + d ti = pi + di ti
+#   - (d x di) (p - pi) = 0
+#   - d, di & (p - pi) are coplanar (their matrix has det = 0)
+#   (these do not check if ti > 0)
+# - number theoretic approach (Chinese remainder theorem ...?)
+#   - assuming that time is also integral
+# - try an endless iteration of possible directions
+#   - if the direction is fixed, the position can be computed
+#     by a linear system of equations
+#   - the possible (integral) directions can be ordered by length
 source readlines.tcl
 set part2 true
+package require math::linearalgebra
 
 proc add {u v} {
     lassign $u ux uy uz
@@ -29,6 +43,8 @@ proc dot {u v} {
     expr {$ux*$vx+$uy*$vy+$uz*$vz}
 }
 
+proc sqrnorm u {dot $u $u}
+
 proc insideXY {p min max} {
     lassign $p px py
     expr {$min <= $px && $px <= $max && $min <= $py && $py <= $max}
@@ -57,78 +73,32 @@ proc intersect {a b min max} {
     expr {[insideXY $aint $min $max] && [insideXY $bint $min $max]}
 }
 
-proc inside {point halfspace} {
-    lassign $halfspace p d
-    expr {[dot [sub $point $p] $d] > 0}
-}
-
-# Find the first sub-octree that is on the "future" side of each hailstone,
-# and hope that there will only be one such position.
-proc findPos {hail a b} {
-    if {$a == $b} {
-        return {}
-    }
-    if {$hail == {}} {
-        return [list $a $b]
-    }
-    set rest [lassign $hail h]
-    lassign $a ax ay az
-    lassign $b bx by bz
-    set vertices [list \
-        [list $ax $ay $az] \
-        [list $ax $ay $bz] \
-        [list $ax $by $az] \
-        [list $ax $by $bz] \
-        [list $bx $ay $az] \
-        [list $bx $ay $bz] \
-        [list $bx $by $az] \
-        [list $bx $by $bz]]
-    set any false
-    set all true
-    foreach v $vertices {
-        if {[inside $v $h]} {
-            set any true
-            if {!$all} {
-                break
-            }
-        } else {
-            set all false
-            if {$any} {
-                break
-            }
+proc findPos {hail dir} {
+    set n [llength $hail]
+    set A [math::linearalgebra::mkMatrix [expr {$n*3}] [expr {$n+3}] 0]
+    set b [math::linearalgebra::mkVector [expr {$n*3}] 0]
+    for {set i 0} {$i < $n} {incr i} {
+        lassign [lindex $hail $i] p d
+        set d [sub $dir $d]
+        for {set j 0} {$j < 3} {incr j} {
+            set row [expr {$i*3+$j}]
+            math::linearalgebra::setelem A $row $j 1
+            math::linearalgebra::setelem A $row [expr {$i+3}] [lindex $d $j]
+            math::linearalgebra::setelem b $row [lindex $p $j]
         }
     }
-    if {$all} {
-        tailcall findPos $rest $a $b
-    }
-    if {!$any} {
-        return {}
-    }
-    set c [div [add $a $b] 2]
-    lassign $c cx cy cz
-    set divisions [list \
-        [list [list $ax $ay $az] [list $cx $cy $cz]] \
-        [list [list $cx $ay $az] [list $bx $cy $cz]] \
-        [list [list $ax $cy $az] [list $cx $by $cz]] \
-        [list [list $cx $cy $az] [list $bx $by $cz]] \
-        [list [list $ax $ay $cz] [list $cx $cy $bz]] \
-        [list [list $cx $ay $cz] [list $bx $cy $bz]] \
-        [list [list $ax $cy $cz] [list $cx $by $bz]] \
-        [list [list $cx $cy $cz] [list $bx $by $bz]]]
-    foreach sub $divisions {
-        if {$sub == [list $a $b]} {
-            continue
-        }
-        set result [findPos $hail {*}$sub]
-        if {$result != {}} {
-            return $result
-        }
-    }
-    return {}
+    set x [math::linearalgebra::leastSquaresSVD $A $b]
+    set p [list \
+        [math::linearalgebra::getelem $x 0] \
+        [math::linearalgebra::getelem $x 1] \
+        [math::linearalgebra::getelem $x 2]]
+    puts $p
+    set pi [lmap x $p {expr {round($x)}}]
+    expr {[sqrnorm [sub $p $pi]] < 1e-5 ? $pi : {}}
 }
 
 set hail {}
-foreach line [readLines adv24.txt] {
+foreach line [readLines adv24t.txt] {
     regsub -all {[, @]+} $line " " line
     lappend hail [list [lrange $line 0 2] [lrange $line 3 5]]
     if {!$part2} {
@@ -136,17 +106,31 @@ foreach line [readLines adv24.txt] {
         lset hail end 1 2 0
     }
 }
-set n [llength $hail]
-set min 200000000000000
-set max 400000000000000
 
 if {$part2} {
-    set min 1000000000000
-    set max 1000000000000000
-    lassign [findPos $hail [list $min $min $min] [list $max $max $max]] a b
-    puts "$a --- $b"
+    for {set size 1} true {incr size} {
+        puts "$size..."
+        for {set x 0} {$x <= $size} {incr x} {
+            for {set y 0} {$y <= $size - $x} {incr y} {
+                set d [list $x $y [expr {$size - $x - $y}]]
+                for {set sign 0} {$sign < 8} {incr sign} {
+                    if {$sign & 1} {lset d 0 [expr {-[lindex $d 0]}]}
+                    if {$sign & 2} {lset d 1 [expr {-[lindex $d 1]}]}
+                    if {$sign & 4} {lset d 2 [expr {-[lindex $d 2]}]}
+                    set p [findPos $hail $d]
+                    if {$p != {}} {
+                        puts [expr {[lindex $p 0]+[lindex $p 1]+[lindex $p 2]}]
+                        exit
+                    }
+                }
+            }
+        }
+    }
 } else {
+    set min 200000000000000
+    set max 400000000000000
     set count 0
+    set n [llength $hail]
     for {set i 0} {$i < $n} {incr i} {
         set hail1 [lindex $hail $i]
         for {set j [expr {$i+1}]} {$j < $n} {incr j} {
