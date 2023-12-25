@@ -6,3 +6,10 @@ Day | Old laptop | New laptop | Translated to | New runtime on old laptop |
  17 |  6m + 35m  |  30s + 3m  |      C++      |          3s + 5s          |
  22 |     1m     |     5s     |       C       |            <1s            |
  23 |  1s + 37m  | 0s + 2m30s |  Standard ML  |          0s + 16s         |
+ 25 |     ?      |     ?      |      C++      |            17s            |
+
+(Day 25 in Tcl uses the probabilistic Karger algorithm for the min-cut,
+ which can be very fast if we are very lucky ... I got the solution after
+ around 370 trials, which is quite lucky, but still took a long time.
+ The C++ version is not a translation, but uses the Stoer-Wagner algorithm
+ in the boost::graph library.)

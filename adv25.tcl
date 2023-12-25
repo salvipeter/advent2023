@@ -1,5 +1,3 @@
-source readlines.tcl
-
 proc select xs {
     set n [llength $xs]
     set k [expr {int(rand()*$n)}]
